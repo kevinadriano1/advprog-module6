@@ -23,3 +23,13 @@ I implemented conditional response logic in the handle_connection method. The ke
 ## commit 4 Reflection Notes
 
 I simulated a performance bottleneck by creating a /sleep route in the web server. When the /sleep route is accessed, the server uses thread::sleep() to pause for 10 seconds before responding. This effectively shows how a single-threaded server behaves under delay or high processing load. When I opened /sleep in one browser tab, the server did not respond to other requests until the 10-second delay finished. Even when accessing the normal / route in another tab, the page did not load until /sleep was done.  I realized that single-threaded architecture is not scalable. In real web servers, we must use multithreading or asynchronous handling so that slow or delayed requests do not block other users. This helped me understand how concurrency and performance go hand-in-hand in web server design.
+
+## commit 5 Reflection Notes
+
+In this part of the project, we improved the performance of our server by introducing a ThreadPool, which allows the server to handle multiple incoming connections at the same time. Instead of creating a new thread for each request, we created a fixed number of threads (in this case, four) using ThreadPool::new(4). These threads stay active and are reused to handle incoming requests efficiently.
+
+Inside the main loop, we used pool.execute to assign a task (a closure) to the thread pool. This is similar to how thread::spawn() works in Rust, where a closure is passed to be executed. However, instead of constantly creating new threads, the thread pool sends the task to one of the pre-initialized worker threads to execute it.
+
+We used the type usize for the thread count parameter in ThreadPool::new() because it represents only non-negative whole numbers. This makes sense since the number of threads can't be negative, and usize also fits well with how we manage the worker threads using a vector.
+
+In the execute method, we defined the closure type using FnOnce(). This means the closure will only be called once, which fits our use case of handling a single connection per task. The parentheses after FnOnce indicate that the closure takes no arguments and returns nothing (unit type ()), just like a normal function with no parameters.
