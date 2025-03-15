@@ -12,3 +12,9 @@ By collecting these lines into a Vec<String>, I could clearly see how a browser 
 
 I learned how a web server can return an actual HTML file instead of just plain text. By modifying the handle_connection method, I was able to read the contents of an hello.html file and send it as part of the HTTP response. The fs::read_to_string() function made it very easy to read the entire file into memory, and by formatting it together with proper headers, I could return a response that browsers can correctly display.
 One important thing I learned is the significance of Content-Length in the HTTP response. Without this header, some browsers might not render the page correctly. I also learned that every HTTP response needs to follow a particular structure, starting with a status line (HTTP/1.1 200 OK), followed by headers, and then an empty line before the actual body content.
+
+## Commit 3 Reflection Notes
+
+![Commit 3 screen capture](/assets/images/commit3.png)
+
+I implemented conditional response logic in the handle_connection method. The key idea was to check the request line from the browser and return different pages depending on the path. If the path is /, the server responds with a 200 OK status and shows hello.html. If the path is anything else (e.g., /bad), it returns a 404 NOT FOUND status and serves a custom 404.html file.  In this example we only treat the URI '/' as a valid request, hence if the status line is 'GET / HTTP/1.1' then we give them the normal hello.html, with a success status code. If it is anything else, that means that it is an invalid URI, in which case we return an error not found status code and error page. Refactoring is introduced in the tutorial to clean up the code and improve maintainability. Instead of keeping all logic in one function, we can break it into smaller, reusable components. This makes the code easier to understand and allows us to scale our web server in the future.
